@@ -21,3 +21,19 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos de entorno
+.env
+
+# Ignorar archivos generados automáticamente
+package-lock.json
+
+# Ignorar archivos de logs
+*.log
+
+# Ignorar archivos de IDE
+.vscode/
+.idea/
