@@ -1,5 +1,4 @@
 const client = require('./conectbd');
-const bcrypt = require('bcrypt');
 const express = require('express');
 const bodyParser = require('body-parser');
 
