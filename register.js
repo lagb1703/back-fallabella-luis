@@ -1,6 +1,7 @@
 const client = require('./conectbd');
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 client.connect()
   .then(() => console.log('Conectado a la base de datos'))
