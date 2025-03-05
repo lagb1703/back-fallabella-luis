@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const client = require('./conectbd');
+const data = require('./data')
+const cors = require('cors')
 
 client.connect()
   .then(() => console.log('Conectado a la base de datos'))
@@ -9,7 +11,10 @@ client.connect()
 
 const app = express();
 app.use(bodyParser.json());
-
+app.use (cors())
+app.get('/', (req, res) => {
+  res.json(data)
+})
 // Ruta para iniciar sesión
 app.post('/login', async (req, res) => {
   const { email, contrasena } = req.body;
