@@ -5,8 +5,16 @@ import { MongoClientOptions, ServerApiVersion } from "mongodb";
 const config = new ConfigService();
 
 export const URI = 
-  `mongodb://${config.get(Configuration.MONGOHOST)}:${config.get(Configuration.MONGOPORT)}/${config.get(Configuration.MONGODATABASE)}`;
-
+  `mongodb://${
+    config.get(Configuration.MONGOUSERNAME)
+  }:${
+    config.get(Configuration.MONGOPASSWORD)
+  }@${
+    config.get(Configuration.MONGOHOST)
+  }/${
+    config.get(Configuration.MONGODATABASE)
+  }`;
+console.log(URI);
 export const databaseProvider: MongoClientOptions = {
   serverApi: ServerApiVersion.v1,
   auth: {

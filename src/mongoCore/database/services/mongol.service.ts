@@ -113,7 +113,7 @@ export class MongoService {
         collection: string,
         filters: mg.Filter<mg.BSON.Document>,
         options?: mg.DeleteOptions
-    ): Promise<undefined> {
+    ): Promise<any> {
         try {
 
             await this.mongodb.connect();
@@ -132,7 +132,7 @@ export class MongoService {
         }
     }
 
-    getLogMessage(collection: string, filters?: object, projections?: object): string {
+    private getLogMessage(collection: string, filters?: object, projections?: object): string {
         const FILTERS = JSON.stringify(filters);
         const PROJECTIONS = JSON.stringify(projections)
         if (!filters && !projections)
