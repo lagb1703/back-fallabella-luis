@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as mg from "mongodb"
 import { databaseProvider, URI } from '../../config/config.db.service';
+import { Configuration } from './../../config/config.key';
+import { ConfigService } from './../../config/config.service';
 
 @Injectable()
 export class MongoService {
@@ -8,8 +10,10 @@ export class MongoService {
 
     private readonly mongodb: mg.MongoClient;
 
-    constructor() {
-        this.mongodb = new mg.MongoClient(URI, databaseProvider);
+    constructor(
+        private readonly configService: ConfigService
+    ) {
+        this.mongodb = new mg.MongoClient(URI);
     }
 
     /**
@@ -23,17 +27,19 @@ export class MongoService {
         collection: string,
         filters?: mg.Filter<mg.Document>,
         projections?: mg.FindOptions<mg.Document>
-    ): Promise<mg.FindCursor<mg.WithId<mg.BSON.Document>>> {
+    ): Promise<mg.WithId<mg.BSON.Document>[]> {
         try {
+            console.log(-1)
             await this.mongodb.connect();
-            const db = this.mongodb.db()
-            const cn = db.collection(collection)
+            const db = this.mongodb.db(this.configService.get(Configuration.MONGODATABASE));
+            const cn = db.collection(collection);
             const document = cn.find(filters, projections);
             const message = this.getLogMessage(collection, filters, projections)
                 .replace(/\n|/g, '')
                 .replace(/  +/g, ' ');
             this.logger.log(message);
-            return document;
+            console.log(document);
+            return document.toArray();
         } catch (err) {
             this.logger.error('Error in processing:\n', err);
         }

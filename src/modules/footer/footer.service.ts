@@ -7,6 +7,10 @@ export class FooterService {
     private readonly logger: Logger = new Logger(FooterService.name);
     constructor(private readonly mongoService:MongoService){}
 
+    /**
+     * Obtiene los menus de Footer
+     * @returns Un array con todos los menus
+     */
     async getFooterMenu(): Promise<Array<SubMenu>>{
         try{
             const result = this.mongoService.query("CO_FooterMenu");

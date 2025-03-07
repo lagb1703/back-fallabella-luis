@@ -5,15 +5,13 @@ import { MongoClientOptions, ServerApiVersion } from "mongodb";
 const config = new ConfigService();
 
 export const URI = 
-  `mongodb://${
+  `mongodb+srv://${
     config.get(Configuration.MONGOUSERNAME)
   }:${
     config.get(Configuration.MONGOPASSWORD)
   }@${
     config.get(Configuration.MONGOHOST)
-  }/${
-    config.get(Configuration.MONGODATABASE)
-  }`;
+  }/?retryWrites=true&w=majority&appName=LabIngeSoft`;
 console.log(URI);
 export const databaseProvider: MongoClientOptions = {
   serverApi: ServerApiVersion.v1,
