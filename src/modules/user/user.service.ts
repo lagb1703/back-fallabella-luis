@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Request } from '@nestjs/common';
 import { PlpgsqlService } from 'src/newCore/database/services';
-import { DocumentTypeInterface, UserInterface, UserCountInterface } from './interfaces';
+import { DocumentTypeInterface, UserInterface, UserAcountInterface } from './interfaces';
 import { UserDto } from './dtos';
 import { UserSql } from './sql/user.sql';
+import * as Bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -23,11 +24,12 @@ export class UserService {
         }
     }
 
-    async getUserById(id: string): Promise<UserInterface> {
+    async getUserById(request:Request): Promise<UserInterface> {
         try {
+            const {userId, ...result} = request['user'] as (UserAcountInterface & {iat: number, exp: number});
             return (await this.plpgsqlService.executeQuery<UserInterface>(
                 UserSql.getUserById,
-                [id]
+                [userId]
             ))[0];
         } catch (err) {
             this.logger.error(err);
@@ -35,18 +37,13 @@ export class UserService {
         }
     }
 
-    async getUserAcountByEmailAndPassword(email: string, password: string): Promise<UserCountInterface> {
+    async getUserAcountByEmail(email: string): Promise<UserAcountInterface> {
         try {
-            const result: UserCountInterface = (await this.plpgsqlService.executeQuery<UserCountInterface>(
-                UserSql.getUserAcountByEmailAndPassword,
-                [email, password]
+            const result: UserAcountInterface = (await this.plpgsqlService.executeQuery<UserAcountInterface>(
+                UserSql.getUserAcountByEmail,
+                [email]
             ))[0];
-            if (result) {
-                result.email = email;
-                result.password = password;
-                return result;
-            }
-            return null;
+            return result;
         } catch (err) {
             this.logger.error(err);
             throw Error(err);
@@ -55,6 +52,8 @@ export class UserService {
 
     async saveUser(user: UserDto): Promise<number> {
         try {
+            const hashedPassword = await Bcrypt.hash(user.password, 10);
+            user.password = hashedPassword;
             return (await this.plpgsqlService.executeProcedureSave<UserDto>(
                 UserSql.saveUser,
                 user

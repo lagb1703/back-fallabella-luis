@@ -23,9 +23,9 @@ export class UserController {
     ) { }
 
     @UseGuards(AuthGuard)
-    @Get(':userId')
-    getUserById(@Request() req, @Param('userId') id: string): Promise<UserInterface> {
-        return this.userService.getUserById(id);
+    @Get('')
+    getUserById(@Request() req: Request): Promise<UserInterface> {
+        return this.userService.getUserById(req);
     }
 
     @Get('documentsTypes')
@@ -37,6 +37,6 @@ export class UserController {
     saveUser(@Body() user: UserDto): Promise<number> {
         return this.userService.saveUser(user);
     }
-    
+
 
 }

@@ -28,7 +28,7 @@ export enum UserSql {
               ON tu."tipoDocumento_id" = ttd."tipoDocumento_id"
             WHERE tu.usuario_id = $1
     `,
-  getUserAcountByEmailAndPassword = `
+  getUserAcountByEmail = `
             SELECT
               tu.usuario_id AS "userId",
               tu.correo AS "email",
@@ -36,7 +36,7 @@ export enum UserSql {
             FROM usuarios."TB_Usuarios" tu
             INNER JOIN usuarios."TB_TipoDocumentos" ttd
               ON tu."tipoDocumento_id" = ttd."tipoDocumento_id"
-            WHERE tu.correo = $1 AND tu.contrasena = $2
+            WHERE tu.correo = $1
   `,
   /**
    * @Actions Seccion solo para las consultas de tipo

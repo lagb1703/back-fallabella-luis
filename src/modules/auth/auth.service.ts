@@ -2,9 +2,10 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { UserCountInterface } from '../user/interfaces';
+import { UserAcountInterface } from '../user/interfaces';
 import { ConfigService } from '@nestjs/config';
 import { Configuration } from './../../newCore/config/config.key';
+import * as Bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +17,12 @@ export class AuthService {
     ) { }
 
     async signIn(email: string, pass: string, response: Response): Promise<{ access_token: string }> {
-        const user:UserCountInterface = await this.userService.getUserAcountByEmailAndPassword(email, pass);
+        const user:UserAcountInterface = await this.userService.getUserAcountByEmail(email);
         if (!user) {
+            throw new UnauthorizedException();
+        }
+        const isMatch = await Bcrypt.compare(pass, user.password);
+        if (!isMatch) {
             throw new UnauthorizedException();
         }
         const { password, ...result } = user;

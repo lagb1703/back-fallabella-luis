@@ -1,10 +1,10 @@
-export interface UserCountInterface{
+export interface UserAcountInterface{
     userId: string;
     email: string;
     password: string;
 }
 
-export interface UserInterface extends UserCountInterface{
+export interface UserInterface extends UserAcountInterface{
     names: string;
     lastNames: string;
     identification: string;
