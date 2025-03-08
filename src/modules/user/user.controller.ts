@@ -7,13 +7,15 @@ import {
     HttpStatus,
     Post,
     Request,
-    UseGuards
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common';
 import { AuthGuard } from './../auth/auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { DocumentTypeInterface, UserInterface } from './interfaces';
 import { UserDto } from './dtos';
+import { AuthInterceptor } from './../auth/auth.interceptor';
 
 @Controller('user')
 @ApiTags('User')
@@ -23,6 +25,7 @@ export class UserController {
     ) { }
 
     @UseGuards(AuthGuard)
+    @UseInterceptors(AuthInterceptor)
     @Get('')
     getUserById(@Request() req: Request): Promise<UserInterface> {
         return this.userService.getUserById(req);
