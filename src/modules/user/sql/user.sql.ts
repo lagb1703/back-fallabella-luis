@@ -19,7 +19,6 @@ export enum UserSql {
               (tu.identificador::VARCHAR) AS "identification",
               tu."puntosCMR" AS "cmrPoints",
               tu.celular AS "phone",
-              tu.contrasena AS "password",
               tu.vendedor AS "isSeller",
               tu."tipoDocumento_id" AS "documentTypeId",
               ttd."nombre" AS "documentType"
