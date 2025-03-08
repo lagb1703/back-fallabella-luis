@@ -12,7 +12,6 @@ export const URI =
   }@${
     config.get(Configuration.MONGOHOST)
   }/?retryWrites=true&w=majority&appName=LabIngeSoft`;
-console.log(URI);
 export const databaseProvider: MongoClientOptions = {
   serverApi: ServerApiVersion.v1,
   auth: {

@@ -29,7 +29,6 @@ export class MongoService {
         projections?: mg.FindOptions<mg.Document>
     ): Promise<mg.WithId<mg.BSON.Document>[]> {
         try {
-            console.log(-1)
             await this.mongodb.connect();
             const db = this.mongodb.db(this.configService.get(Configuration.MONGODATABASE));
             const cn = db.collection(collection);
@@ -38,7 +37,6 @@ export class MongoService {
                 .replace(/\n|/g, '')
                 .replace(/  +/g, ' ');
             this.logger.log(message);
-            console.log(document);
             return document.toArray();
         } catch (err) {
             this.logger.error('Error in processing:\n', err);
