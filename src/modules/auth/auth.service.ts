@@ -1,5 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserAcountInterface } from '../user/interfaces';
@@ -17,7 +17,7 @@ export class AuthService {
     ) { }
 
     async signIn(email: string, pass: string, response: Response): Promise<{ access_token: string }> {
-        const user:UserAcountInterface = await this.userService.getUserAcountByEmail(email);
+        const user: UserAcountInterface = await this.userService.getUserAcountByEmail(email);
         if (!user) {
             throw new UnauthorizedException();
         }
@@ -29,16 +29,36 @@ export class AuthService {
         const access = await this.jwtService.signAsync(
             result,
             {
-              secret: this.configService.get(Configuration.JWT_SECRET)
+                secret: this.configService.get(Configuration.JWT_SECRET)
             }
         );
         response.cookie(
-            'Authorization', 
-            `${access}`, 
+            'Authorization',
+            `${access}`,
             { httpOnly: true, maxAge: 3600000 });
-        response
         return {
             access_token: access,
         };
+    }
+
+    async refreshToken(request: Request, response: Response): Promise<{ access_token: string }> {
+        const token = request.cookies?.Authorization;
+        if (!token) {
+            throw new UnauthorizedException('Token no encontrado');
+        }
+        try {
+            const payload = await this.jwtService.verifyAsync(token, {
+                secret: this.configService.get(Configuration.JWT_SECRET),
+                ignoreExpiration: true,
+            });
+            const { iat, exp, ...userData } = payload;
+            const newToken = await this.jwtService.signAsync(userData, {
+                secret: this.configService.get(Configuration.JWT_SECRET)
+            });
+            response.cookie('Authorization', newToken, { httpOnly: true, maxAge: 3600000 });
+            return { access_token: newToken };
+        } catch {
+            throw new UnauthorizedException();
+        }
     }
 }

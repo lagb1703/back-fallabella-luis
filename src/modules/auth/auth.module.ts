@@ -16,7 +16,7 @@ const configService: ConfigService = new ConfigService();
     JwtModule.register({
       global: true,
       secret: configService.get(Configuration.JWT_SECRET),
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '1h' },
     })
   ],
   controllers: [AuthController],
