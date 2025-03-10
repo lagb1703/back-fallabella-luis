@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const client = require('./conectbd');
-const data = require('./data')
-const cors = require('cors')
+const data = require('./data');
+const cors = require('cors');
 
 client.connect()
   .then(() => console.log('Conectado a la base de datos'))
@@ -11,21 +11,24 @@ client.connect()
 
 const app = express();
 app.use(bodyParser.json());
-app.use (cors())
-app.get('/', (req, res) => {
-  res.json(data)
-})
-// Ruta para iniciar sesión
-app.post('/login', async (req, res) => {
-  const { email, contrasena } = req.body;
 
-  if (!email || !contrasena) {
-    return res.status(400).json({ success: false, message: 'Email y contraseña son requeridos' });
+
+app.use(cors());
+app.get('/', (req, res) => {
+  res.json(data);
+});
+
+// Ruta para iniciar sesión
+app.post('/auth/login', async (req, res) => {
+  const { correo, contrasena } = req.body;
+
+  if (!correo || !contrasena) {
+    return res.status(400).json({ success: false, message: 'correo y contraseña son requeridos' });
   }
 
   try {
-    const query = 'SELECT contrasena FROM falabella.usuario WHERE email = $1';
-    const result = await client.query(query, [email]);
+    const query = 'SELECT contrasena FROM usuarios."TB_Usuarios" WHERE correo = $1';
+    const result = await client.query(query, [correo]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
