@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "back-fallabella",
   "version": "1.0.0",
   "description": "Acá estará configurado el back de Falabella",
@@ -14,5 +15,19 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "pg": "^8.13.3"
+=======
+  "name": "distributed",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+>>>>>>> b3492e7 (s)
   }
 }
