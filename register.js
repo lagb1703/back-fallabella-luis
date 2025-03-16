@@ -4,8 +4,6 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 
-console.log('Hola')
-
 client.connect()
   .then(() => console.log('Conectado a la base de datos'))
   .catch(err => console.error('Error de conexión', err));
