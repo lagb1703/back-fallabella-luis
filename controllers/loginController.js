@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const client = require('../configuracion/conectbd');
+const client = require('../config/conectbd');
 
 const login = async (req, res) => {
   const { correo, contrasena } = req.body;
@@ -33,5 +33,5 @@ const login = async (req, res) => {
 };
 
 module.exports = {
-  login,
+  login
 };

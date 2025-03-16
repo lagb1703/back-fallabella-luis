@@ -8,7 +8,7 @@ const { requestCambioContrasena, validarPin } = require('../controllers/recupera
 router.post('/login', login);
 
 // Ruta para registrar un nuevo usuario
-router.post('/registro', register);
+router.post('/register', register);
 
 // Ruta para solicitar un cambio de contraseña
 router.post('/request_cambio_contrasena', requestCambioContrasena);

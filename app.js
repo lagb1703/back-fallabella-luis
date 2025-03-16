@@ -7,7 +7,13 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+
+// Configura CORS
+app.use(cors({
+  origin: 'https://urban-waddle-g4qv747pjw9hwq55-5173.app.github.dev',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 // Usa las rutas de autenticación
 app.use('/auth', authRoutes);
