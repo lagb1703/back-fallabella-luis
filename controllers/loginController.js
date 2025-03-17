@@ -9,7 +9,7 @@ const login = async (req, res) => {
   }
 
   try {
-    const query = 'SELECT contrasena FROM usuarios."TB_Usuarios" WHERE correo = $1';
+    const query = 'SELECT contrasena, nombres FROM usuarios."TB_Usuarios" WHERE correo = $1 ';
     const result = await pool.query(query, [correo]);
 
     if (result.rows.length === 0) {
