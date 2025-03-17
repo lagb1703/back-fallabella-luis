@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const client = require('../config/conectbd');
+const pool = require('../config/conectbd');
 
 const login = async (req, res) => {
   const { correo, contrasena } = req.body;
@@ -10,12 +10,12 @@ const login = async (req, res) => {
 
   try {
     const query = 'SELECT contrasena FROM usuarios."TB_Usuarios" WHERE correo = $1';
-    const result = await client.query(query, [correo]);
+    const result = await pool.query(query, [correo]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
-
+  
     const usuario = result.rows[0];
     const contrasenaHash = usuario.contrasena;
 
@@ -24,7 +24,7 @@ const login = async (req, res) => {
     if (!esValida) {
       return res.status(401).json({ success: false, message: 'Contraseña incorrecta' });
     }
-
+    console.log('Inicio de sesión exitoso para el usuario:', correo);
     res.status(200).json({ success: true, message: 'Inicio de sesión exitoso', usuario });
   } catch (err) {
     console.error('Error al iniciar sesión:', err);

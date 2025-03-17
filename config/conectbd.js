@@ -1,8 +1,8 @@
 // conectbd.js
-const { Client } = require('pg');
+const {Pool} = require('pg');
 
 // Configuración de la conexión a la base de datos
-const client = new Client({
+const pool = new Pool({
   user: 'postgres',
   host: 'falabelladb.cruw88i8wma8.us-east-2.rds.amazonaws.com',
   database: 'Falabella',
@@ -10,7 +10,7 @@ const client = new Client({
   port: 5432,
 });
 
-// Exportar el cliente directamente
-module.exports = client;
+// Exportar el poole directamente
+module.exports = pool;
 
 

@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const { randomInt } = require('crypto'); // Para generar el PIN
 const bcrypt = require('bcrypt'); // Para hashear la contraseña
-const client = require('../config/conectbd');
+const pool = require('../config/conectbd');
 
 // Configuración de nodemailer
 const transporter = nodemailer.createTransport({
@@ -23,7 +23,7 @@ const requestCambioContrasena = async (req, res) => {
 
     try {
         // Verificar si el usuario existe en la base de datos
-        const userQuery = await client.query(
+        const userQuery = await pool.query(
             'SELECT * FROM usuarios."TB_Usuarios" WHERE correo = $1',
             [correo]
         );
@@ -36,7 +36,7 @@ const requestCambioContrasena = async (req, res) => {
         const pin = generatePin();
 
         // Guardar el PIN y su fecha de expiración en la base de datos
-        await client.query(
+        await pool.query(
             'UPDATE usuarios."TB_Usuarios" SET pin_validacion = $1, pin_expira = NOW() + INTERVAL \'7 minutes\' WHERE correo = $2',
             [pin, correo]
         );
@@ -69,7 +69,7 @@ const validarPin = async (req, res) => {
 
     try {
         // Verificar si el usuario existe en la base de datos
-        const userQuery = await client.query(
+        const userQuery = await pool.query(
             'SELECT * FROM usuarios."TB_Usuarios" WHERE correo = $1',
             [correo]
         );
@@ -94,7 +94,7 @@ const validarPin = async (req, res) => {
         const hashedContrasena = await bcrypt.hash(nueva_contrasena, saltRounds);
 
         // Cambiar la contraseña hasheada en la base de datos
-        await client.query(
+        await pool.query(
             'UPDATE usuarios."TB_Usuarios" SET contrasena = $1, pin_validacion = NULL, pin_expira = NULL WHERE correo = $2',
             [hashedContrasena, correo]
         );
