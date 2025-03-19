@@ -6,6 +6,7 @@ npm install nodemon -g
 npm install bcrypt
 npm install cors
 npm install express
+
 Inicializar app
 nodemon app.js
 

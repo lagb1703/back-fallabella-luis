@@ -18,7 +18,7 @@ function generatePin() {
 }
 
 // Controlador para solicitar un cambio de contraseña
-const requestCambioContrasena = async (req, res) => {
+const requestChangePassword = async (req, res) => {
     const { correo } = req.body;
 
     try {
@@ -64,7 +64,7 @@ const requestCambioContrasena = async (req, res) => {
 };
 
 // Controlador para validar el PIN y cambiar la contraseña
-const validarPin = async (req, res) => {
+const validationPin = async (req, res) => {
     const { correo, pin, nueva_contrasena } = req.body;
 
     try {
@@ -107,6 +107,6 @@ const validarPin = async (req, res) => {
 };
 
 module.exports = {
-    requestCambioContrasena,
-    validarPin,
+    requestChangePassword,
+    validationPin,
 };
