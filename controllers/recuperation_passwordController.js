@@ -8,7 +8,8 @@ const transporter = nodemailer.createTransport({
     service: 'gmail', // Cambia esto según tu proveedor de correo
     auth: {
         user: 'laboratoriosoft17@gmail.com',
-        pass: 'Laboratorio2025Soft'
+        pass: 'rwrb vrlc necc zrdz'
+        // pass: 'Laboratorio2025Soft'
     }
 });
 
