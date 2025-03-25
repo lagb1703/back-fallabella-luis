@@ -23,6 +23,41 @@ async function verificarCorreo(correo) {
     }
 }
 
+// Función para validar la contraseña
+const validarContrasena = (password) => {
+    // Mínimo 8 caracteres
+    if (password.length < 8) {
+        return { valido: false, mensaje: 'La contraseña debe tener al menos 8 caracteres.' };
+    }
+
+    // Al menos 1 número
+    if (!/\d/.test(password)) {
+        return { valido: false, mensaje: 'La contraseña debe contener al menos un número.' };
+    }
+
+    // Al menos 1 mayúscula
+    if (!/[A-Z]/.test(password)) {
+        return { valido: false, mensaje: 'La contraseña debe contener al menos una letra mayúscula.' };
+    }
+
+    // Al menos 1 minúscula
+    if (!/[a-z]/.test(password)) {
+        return { valido: false, mensaje: 'La contraseña debe contener al menos una letra minúscula.' };
+    }
+
+    // Sin espacios
+    if (/\s/.test(password)) {
+        return { valido: false, mensaje: 'La contraseña no debe contener espacios.' };
+    }
+
+    // Caracteres no permitidos: \¡¿"ºª·`´çñÑ
+    if (/[\\¡¿"ºª·`´çñÑ]/.test(password)) {
+        return { valido: false, mensaje: 'La contraseña contiene caracteres no permitidos.' };
+    }
+
+    return { valido: true };
+};
+
 const register = async (req, res) => {
     const { correo, nombres, apellidos, identificador, celular, contrasena, tipoDocumento_id } = req.body;
 
@@ -31,61 +66,13 @@ const register = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Rellene todos los campos' });
     }
 
-<<<<<<< HEAD
-  // Función para validar la contraseña
-  const validarContrasena = (password) => {
-    // Mínimo 8 caracteres
-    if (password.length < 8) {
-      return { valido: false, mensaje: 'La contraseña debe tener al menos 8 caracteres.' };
+    // Validar la contraseña
+    const validacion = validarContrasena(contrasena);
+    if (!validacion.valido) {
+        return res.status(400).json({ success: false, message: validacion.mensaje });
     }
 
-    // Al menos 1 número
-    if (!/\d/.test(password)) {
-      return { valido: false, mensaje: 'La contraseña debe contener al menos un número.' };
-    }
-
-    // Al menos 1 mayúscula
-    if (!/[A-Z]/.test(password)) {
-      return { valido: false, mensaje: 'La contraseña debe contener al menos una letra mayúscula.' };
-    }
-
-    // Al menos 1 minúscula
-    if (!/[a-z]/.test(password)) {
-      return { valido: false, mensaje: 'La contraseña debe contener al menos una letra minúscula.' };
-    }
-
-    // Sin espacios
-    if (/\s/.test(password)) {
-      return { valido: false, mensaje: 'La contraseña no debe contener espacios.' };
-    }
-
-    // Caracteres no permitidos: \¡¿"ºª·`´çñÑ
-    if (/[\\¡¿"ºª·`´çñÑ]/.test(password)) {
-      return { valido: false, mensaje: 'La contraseña contiene caracteres no permitidos.' };
-    }
-
-    return { valido: true };
-  };
-
-  // Validar la contraseña
-  const validacion = validarContrasena(contrasena);
-  if (!validacion.valido) {
-    return res.status(400).json({ success: false, message: validacion.mensaje });
-  }
-
-  try {
-    // Hashear la contraseña
-    const saltRounds = 10;
-    const hash = await bcrypt.hash(contrasena, saltRounds);
-=======
     try {
-        // Verificar si el correo es válido usando ZeroBounce
-        const correoValido = await verificarCorreo(correo);
-        if (!correoValido) {
-            return res.status(400).json({ success: false, message: 'El correo electrónico no es válido' });
-        }
->>>>>>> f2ef4be844b5b83cc3842c5cc02a2f47b7ece24f
-
         // Verificar si el correo ya está registrado en la base de datos
         const existeCorreo = await pool.query(
             'SELECT * FROM usuarios."TB_Usuarios" WHERE correo = $1',
@@ -95,6 +82,12 @@ const register = async (req, res) => {
         if (existeCorreo.rows.length > 0) {
             return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
         }
+
+        // Opcional: Verificar validez del correo con ZeroBounce
+        // const correoValido = await verificarCorreo(correo);
+        // if (!correoValido) {
+        //     return res.status(400).json({ success: false, message: 'El correo electrónico no es válido' });
+        // }
 
         // Hashear la contraseña
         const saltRounds = 10;
