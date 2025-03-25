@@ -4,7 +4,7 @@ const axios = require('axios'); // Para hacer solicitudes HTTP a la API de ZeroB
 
 // Función para verificar un correo electrónico usando ZeroBounce
 async function verificarCorreo(correo) {
-    const apiKey = 'tu_api_key_de_zerobounce'; // Reemplaza con tu API Key de ZeroBounce
+    const apiKey = '0364628b008e4320b2ea4e386506ada5'; // Reemplaza con tu API Key de ZeroBounce
     const url = `https://api.zerobounce.net/v2/validate?api_key=${apiKey}&email=${correo}`;
 
     try {
@@ -83,11 +83,11 @@ const register = async (req, res) => {
             return res.status(400).json({ success: false, message: 'El correo electrónico ya está registrado' });
         }
 
-        // Opcional: Verificar validez del correo con ZeroBounce
-        // const correoValido = await verificarCorreo(correo);
-        // if (!correoValido) {
-        //     return res.status(400).json({ success: false, message: 'El correo electrónico no es válido' });
-        // }
+        
+        const correoValido = await verificarCorreo(correo);
+        if (!correoValido) {
+            return res.status(400).json({ success: false, message: 'El correo electrónico no es válido' });
+        }
 
         // Hashear la contraseña
         const saltRounds = 10;
