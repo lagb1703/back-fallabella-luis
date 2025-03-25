@@ -9,6 +9,47 @@ const register = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Rellene todos los campos' });
   }
 
+  // Función para validar la contraseña
+  const validarContrasena = (password) => {
+    // Mínimo 8 caracteres
+    if (password.length < 8) {
+      return { valido: false, mensaje: 'La contraseña debe tener al menos 8 caracteres.' };
+    }
+
+    // Al menos 1 número
+    if (!/\d/.test(password)) {
+      return { valido: false, mensaje: 'La contraseña debe contener al menos un número.' };
+    }
+
+    // Al menos 1 mayúscula
+    if (!/[A-Z]/.test(password)) {
+      return { valido: false, mensaje: 'La contraseña debe contener al menos una letra mayúscula.' };
+    }
+
+    // Al menos 1 minúscula
+    if (!/[a-z]/.test(password)) {
+      return { valido: false, mensaje: 'La contraseña debe contener al menos una letra minúscula.' };
+    }
+
+    // Sin espacios
+    if (/\s/.test(password)) {
+      return { valido: false, mensaje: 'La contraseña no debe contener espacios.' };
+    }
+
+    // Caracteres no permitidos: \¡¿"ºª·`´çñÑ
+    if (/[\\¡¿"ºª·`´çñÑ]/.test(password)) {
+      return { valido: false, mensaje: 'La contraseña contiene caracteres no permitidos.' };
+    }
+
+    return { valido: true };
+  };
+
+  // Validar la contraseña
+  const validacion = validarContrasena(contrasena);
+  if (!validacion.valido) {
+    return res.status(400).json({ success: false, message: validacion.mensaje });
+  }
+
   try {
     // Hashear la contraseña
     const saltRounds = 10;
