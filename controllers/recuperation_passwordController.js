@@ -8,7 +8,8 @@ const transporter = nodemailer.createTransport({
     service: 'gmail', // Cambia esto según tu proveedor de correo
     auth: {
         user: 'laboratoriosoft17@gmail.com',
-        pass: 'Laboratorio2025Soft'
+        pass: 'rwrb vrlc necc zrdz'
+        // pass: 'Laboratorio2025Soft'
     }
 });
 
@@ -18,7 +19,7 @@ function generatePin() {
 }
 
 // Controlador para solicitar un cambio de contraseña
-const requestCambioContrasena = async (req, res) => {
+const requestChangePassword = async (req, res) => {
     const { correo } = req.body;
 
     try {
@@ -64,7 +65,7 @@ const requestCambioContrasena = async (req, res) => {
 };
 
 // Controlador para validar el PIN y cambiar la contraseña
-const validarPin = async (req, res) => {
+const validationPin = async (req, res) => {
     const { correo, pin, nueva_contrasena } = req.body;
 
     try {
@@ -107,6 +108,6 @@ const validarPin = async (req, res) => {
 };
 
 module.exports = {
-    requestCambioContrasena,
-    validarPin,
+    requestChangePassword,
+    validationPin,
 };
