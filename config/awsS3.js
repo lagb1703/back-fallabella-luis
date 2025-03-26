@@ -1,4 +1,5 @@
 const { S3 } = require("@aws-sdk/client-s3");
+const bcrypt = require('bcrypt');
 const BUCKET = process.env.AWS_BUCKET_NAME;
 class AwsS3 {
 
@@ -17,6 +18,8 @@ class AwsS3 {
   }
 
   async uploadFile(file) {
+    const hash = bcrypt.hashSync(file.buffer.toString(), 10);
+    file.originalname = hash
     const params = {
       Bucket: BUCKET,
       Key: file.originalname,
