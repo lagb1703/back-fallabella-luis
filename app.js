@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const authRoutes = require('./routes/authRoutes'); // Importa las rutas de autenticación
+const authRoutes = require('./routes/authRoutes');
+const client = require('./config/mongoConection');
 
 const app = express();
 
