@@ -1,9 +1,11 @@
+const {config} = require('dotenv');
+if(process.env.NODE_ENV !== 'production') {
+  config();
+}
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
-const client = require('./config/mongoConection');
-
 const app = express();
 
 // Middleware
