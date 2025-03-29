@@ -64,9 +64,8 @@ const requestChangePassword = async (req, res) => {
     }
 };
 
-// Controlador para validar el PIN y cambiar la contraseña
 const validationPin = async (req, res) => {
-    const { correo, pin, nueva_contrasena } = req.body;
+    const { correo, pin } = req.body;
 
     try {
         // Verificar si el usuario existe en la base de datos
@@ -81,33 +80,73 @@ const validationPin = async (req, res) => {
 
         const user = userQuery.rows[0];
 
-        // Verificar el PIN y su expiración
-        if (user.pin_validacion !== pin) {
-            return res.status(400).json({ error: 'PIN inválido' });
+        // Verificar si el PIN es válido y no ha expirado
+        if (user.pin_validacion === pin && new Date(user.pin_expira) > new Date()) {
+            res.status(200).json({sucess: true, message: 'PIN válido' });
+        } else {
+            res.status(400).json({ error: 'PIN inválido o expirado' });
         }
-
-        if (user.pin_expira < new Date()) {
-            return res.status(400).json({ error: 'PIN expirado' });
-        }
-
-        // Hashear la nueva contraseña
-        const saltRounds = 10; // Número de rondas de hashing
-        const hashedContrasena = await bcrypt.hash(nueva_contrasena, saltRounds);
-
-        // Cambiar la contraseña hasheada en la base de datos
-        await pool.query(
-            'UPDATE usuarios."TB_Usuarios" SET contrasena = $1, pin_validacion = NULL, pin_expira = NULL WHERE correo = $2',
-            [hashedContrasena, correo]
-        );
-
-        res.status(200).json({ message: 'Contraseña cambiada exitosamente' });
     } catch (error) {
         console.error('Error en el servidor:', error);
         res.status(500).json({ error: 'Error en el servidor' });
     }
 };
 
+const newPassword = async (req, res) => {
+    const { correo, nueva_contrasena } = req.body;
+    try {
+        
+        // 1. Verificar si el usuario existe
+        const userQuery = await pool.query(
+            'SELECT contrasena FROM usuarios."TB_Usuarios" WHERE correo = $1',
+            [correo]
+        );
+
+        if (userQuery.rows.length === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Usuario no encontrado' 
+            });
+        }
+
+        const user = userQuery.rows[0];
+        
+        console.log('nueva_contrasena', nueva_contrasena, typeof nueva_contrasena)
+        // 2. Comparar con la contraseña anterior
+        const isSamePassword = await bcrypt.compare(nueva_contrasena, user.contrasena);
+        console.log('la contraseña es igual', isSamePassword, );
+        if (isSamePassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'La nueva contraseña no puede ser igual a la anterior'
+            });
+        }
+
+        // 3. Hashear y actualizar la nueva contraseña
+        const saltRounds = 10;
+        const hashedContrasena = await bcrypt.hash(nueva_contrasena, saltRounds);
+
+        await pool.query(
+            'UPDATE usuarios."TB_Usuarios" SET contrasena = $1 WHERE correo = $2',
+            [hashedContrasena, correo]
+        );
+
+        res.status(200).json({ 
+            success: true,
+            message: 'Contraseña cambiada exitosamente' 
+        });
+
+    } catch (error) {
+        console.error('Error en newPassword:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error en el servidor al actualizar la contraseña'
+        });
+    }
+};
+
 module.exports = {
     requestChangePassword,
     validationPin,
+    newPassword
 };
