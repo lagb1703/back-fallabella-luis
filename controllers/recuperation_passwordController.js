@@ -111,10 +111,10 @@ const newPassword = async (req, res) => {
 
         const user = userQuery.rows[0];
         
-        console.log('nueva_contrasena', nueva_contrasena, typeof nueva_contrasena)
+        
         // 2. Comparar con la contraseña anterior
         const isSamePassword = await bcrypt.compare(nueva_contrasena, user.contrasena);
-        console.log('la contraseña es igual', isSamePassword, );
+
         if (isSamePassword) {
             return res.status(400).json({
                 success: false,
