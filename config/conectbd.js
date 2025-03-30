@@ -1,16 +1,10 @@
-// conectbd.js
 const {Pool} = require('pg');
 
-// Configuración de la conexión a la base de datos
 const pool = new Pool({
-  user: 'postgres',
-  host: 'falabelladb.cruw88i8wma8.us-east-2.rds.amazonaws.com',
-  database: 'Falabella',
-  password: 'Pepeelmago123',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
-
-// Exportar el poole directamente
 module.exports = pool;
-
-

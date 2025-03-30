@@ -5,10 +5,9 @@ const { register } = require('../controllers/registerController'); // Importa el
 const { register_TEST } = require('../controllers/registerController_TEST'); // Importa el controlador de registro
 const { requestChangePassword, validationPin, newPassword } = require('../controllers/recuperation_passwordController'); // Cambia la importación
 
-// Ruta para iniciar sesión
+
 router.post('/login', login);
 
-// Ruta para registrar un nuevo usuario
 router.post('/register', register);
 
 router.post('/register_TEST', register_TEST);
