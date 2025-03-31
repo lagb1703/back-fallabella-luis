@@ -22,7 +22,7 @@ const getImage = async (req, res) => {
         res.status(200);
         data.Body.pipe(res);
     } catch (err) {
-        console.error('Error al obtener archivo:', err);
+        console.error('Error al obtener archivo:', key);
         res.status(404).json({ success: false, message: 'Error del servidor' });
     }
 };
