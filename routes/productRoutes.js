@@ -7,7 +7,9 @@ const {
     getAllMarcaByCategoryId,
     getCategoryNameByCategoryId,
     getMinPriceByCategoryId,
-    getMaxPriceByCategoryId
+    getMaxPriceByCategoryId,
+    saveProductsToCart,
+    getCart
 } = require('../controllers/productsControler');
 
 router.get('/:id', getProductByObjectId);
@@ -17,5 +19,7 @@ router.get('/maxPrice/:id', getMaxPriceByCategoryId);
 router.post('/category/:id', getProductByCategoryId);
 router.get('/categoryName/:id', getCategoryNameByCategoryId);
 router.get('/tradeMark/:id', getAllMarcaByCategoryId);
+router.get('/cart/:id', getCart);
+router.post('/cart', saveProductsToCart);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const mongoClient = require('../config/mongoConection');
 const { ObjectId } = require('mongodb');
+const pool = require('../config/conectbd');
 
 const DATABASE = process.env.DB_DATABASE;
 
@@ -123,7 +124,7 @@ const getProductByCategoryId = async (req, res) => {
     let match = {
         categorias: { $all: [id] }
     }
-    if(marca.length > 0){
+    if (marca.length > 0) {
         match.marca = marca;
     }
     if (!maxPrice && maxPrice != 0) {
@@ -141,7 +142,7 @@ const getProductByCategoryId = async (req, res) => {
     if (minPrice > maxPrice) {
         return res.status(400).json({ success: false, message: 'minPrice debe ser menor que maxPrice' });
     }
-    if(minPrice > 0 && maxPrice > 0){
+    if (minPrice > 0 && maxPrice > 0) {
         match.precio = { $gte: minPrice, $lte: maxPrice }
     }
     try {
@@ -288,6 +289,64 @@ const getMaxPriceByCategoryId = async (req, res) => {
     }
 }
 
+const getCart = async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ success: false, message: 'id es requerido' });
+    }
+    if (typeof id !== 'string') {
+        return res.status(400).json({ success: false, message: 'id debe ser un string' });
+    }
+    const sqlQuery = `
+        SELECT 
+            carrito_id, 
+            producto_id
+        FROM productos."TB_Carrito" 
+            WHERE usuario_id = $1`;
+    try {
+        const queryResponse = (await pool.query(sqlQuery, [id])).rows;
+        res.status(200).json(queryResponse);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+const saveProductsToCart = async (req, res) => {
+    const { id } = req.query;
+    const { products } = req.body;
+    if (!id) {
+        return res.status(400).json({ success: false, message: 'id es requerido' });
+    }
+    if (typeof id !== 'string') {
+        return res.status(400).json({ success: false, message: 'id debe ser un string' });
+    }
+    if (!products) {
+        return res.status(400).json({ success: false, message: 'products es requerido' });
+    }
+    if (!Array.isArray(products)) {
+        return res.status(400).json({ success: false, message: 'products debe ser un array' });
+    }
+    const sqlQuery = `call productos."SP_PRODUCTOSPKG_AGREGARCARRITO"($1, $2)`;
+    const response = []
+    try{
+        for(const product of products){
+            const params = {
+                userId: id,
+                productId: product.id,
+                cantidad: product.cantidad,
+            }
+            const queryResponse = (await pool.query(sqlQuery, [JSON.stringify(params), 0])).rows[0]['p_id'];
+            response.push({carrito_id: queryResponse, producto_id: product.id});
+        }
+        response.sort()
+        res.status(200).json(response);
+    }catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
 module.exports = {
     getProductByObjectId,
     getProductByCategoryId,
@@ -295,5 +354,7 @@ module.exports = {
     getAllMarcaByCategoryId,
     getCategoryNameByCategoryId,
     getMinPriceByCategoryId,
-    getMaxPriceByCategoryId
+    getMaxPriceByCategoryId,
+    getCart,
+    saveProductsToCart,
 };
