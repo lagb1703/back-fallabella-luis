@@ -49,6 +49,40 @@ const getProductByObjectId = async (req, res) => {
     }
 };
 
+const getAllProductsByObjectsId = async (req, res) => {
+    const products = req.body;
+    if (!products || !Array.isArray(products)) {
+        return res.status(400).json({ success: false, message: 'body es requerido y debe ser un array' });
+    }
+    try {
+        const client = await mongoClient();
+        const db = client.db(DATABASE);
+        const collection = db.collection('CO_Productos');
+        const mongoProduct = await collection.aggregate([
+            {
+            $match: {
+                _id: { $in: products.map(product => new ObjectId(product)) }
+            }
+            },
+            {
+            $project: {
+                _id: 1,
+                nombre: 1,
+                precio: 1,
+                descuento: 1,
+                imagenes: { $slice: ["$imagenes", 1] },
+                marca: 1,
+                envioGratis: 1
+            }
+            }
+        ]).toArray();
+        res.status(200).json(mongoProduct);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+};
+
 const getProductsNumberByCategory = async (req, res) => {
     const { id } = req.params;
     try {
@@ -291,7 +325,7 @@ const getMaxPriceByCategoryId = async (req, res) => {
 
 const getCart = async (req, res) => {
     const { id } = req.params;
-    if (!id) {
+    if (!id || id == undefined) {
         return res.status(400).json({ success: false, message: 'id es requerido' });
     }
     if (typeof id !== 'string') {
@@ -300,7 +334,8 @@ const getCart = async (req, res) => {
     const sqlQuery = `
         SELECT 
             carrito_id, 
-            producto_id
+            producto_id,
+            cantidad
         FROM productos."TB_Carrito" 
             WHERE usuario_id = $1`;
     try {
@@ -311,6 +346,58 @@ const getCart = async (req, res) => {
         res.status(500).json({ error });
     }
 }
+
+const saveProductToCart = async (req, res) => {
+    const { id } = req.params;
+    const { product, amount } = req.query;
+    if (!id) {
+        return res.status(400).json({ success: false, message: 'id es requerido' });
+    }
+    if (typeof id !== 'string') {
+        return res.status(400).json({ success: false, message: 'id debe ser un string' });
+    }
+    if (!product) {
+        return res.status(400).json({ success: false, message: 'product es requerido' });
+    }
+    if (typeof product !== 'string') {
+        return res.status(400).json({ success: false, message: 'product debe ser un string' });
+    }
+    if (!amount) {
+        return res.status(400).json({ success: false, message: 'amount es requerido' });
+    }
+    const sqlQuery = `call productos."SP_PRODUCTOSPKG_AGREGARCARRITO"($1, $2)`;
+    try {
+        const params = {
+            userId: id,
+            productId: product,
+            cantidad: amount,
+        }
+        const queryResponse = (await pool.query(sqlQuery, [JSON.stringify(params), 0])).rows[0]['p_id'];
+        res.status(200).json({ carrito_id: queryResponse, producto_id: product.id, cantidad: amount });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+const deleteProductToCart = async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ success: false, message: 'id es requerido' });
+    }
+    if (typeof id !== 'string') {
+        return res.status(400).json({ success: false, message: 'id debe ser un string' });
+    }
+    const sqlQuery = `call productos."SP_PRODUCTOSPKG_ELIMINARPRODUCTOCARRITO"($1, $2)`;
+    try {
+        await pool.query(sqlQuery, [id]);
+        res.status(200);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
 
 const saveProductsToCart = async (req, res) => {
     const { id } = req.query;
@@ -329,19 +416,19 @@ const saveProductsToCart = async (req, res) => {
     }
     const sqlQuery = `call productos."SP_PRODUCTOSPKG_AGREGARCARRITO"($1, $2)`;
     const response = []
-    try{
-        for(const product of products){
+    try {
+        for (const product of products) {
             const params = {
                 userId: id,
                 productId: product.id,
                 cantidad: product.cantidad,
             }
             const queryResponse = (await pool.query(sqlQuery, [JSON.stringify(params), 0])).rows[0]['p_id'];
-            response.push({carrito_id: queryResponse, producto_id: product.id});
+            response.push({ carrito_id: queryResponse, producto_id: product.id });
         }
         response.sort()
         res.status(200).json(response);
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         res.status(500).json({ error });
     }
@@ -349,6 +436,7 @@ const saveProductsToCart = async (req, res) => {
 
 module.exports = {
     getProductByObjectId,
+    getAllProductsByObjectsId,
     getProductByCategoryId,
     getProductsNumberByCategory,
     getAllMarcaByCategoryId,
@@ -357,4 +445,6 @@ module.exports = {
     getMaxPriceByCategoryId,
     getCart,
     saveProductsToCart,
+    saveProductToCart,
+    deleteProductToCart
 };
