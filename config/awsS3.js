@@ -45,10 +45,4 @@ class AwsS3 {
     return this.s3.deleteObject(params).promise();
     }
 }
-// const awsS3 = AwsS3.getInstance();
-// awsS3.getFile("images", "image 1.jpeg").then(data => {
-//   console.log(data);
-// }).catch(err => {
-//   console.log(err);
-// });
 module.exports = AwsS3;
