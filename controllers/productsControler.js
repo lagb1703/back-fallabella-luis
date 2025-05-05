@@ -60,20 +60,20 @@ const getAllProductsByObjectsId = async (req, res) => {
         const collection = db.collection('CO_Productos');
         const mongoProduct = await collection.aggregate([
             {
-            $match: {
-                _id: { $in: products.map(product => new ObjectId(product)) }
-            }
+                $match: {
+                    _id: { $in: products.map(product => new ObjectId(product)) }
+                }
             },
             {
-            $project: {
-                _id: 1,
-                nombre: 1,
-                precio: 1,
-                descuento: 1,
-                imagenes: { $slice: ["$imagenes", 1] },
-                marca: 1,
-                envioGratis: 1
-            }
+                $project: {
+                    _id: 1,
+                    nombre: 1,
+                    precio: 1,
+                    descuento: 1,
+                    imagenes: { $slice: ["$imagenes", 1] },
+                    marca: 1,
+                    envioGratis: 1
+                }
             }
         ]).toArray();
         res.status(200).json(mongoProduct);
@@ -139,7 +139,6 @@ const getProductByCategoryId = async (req, res) => {
         minPrice,
         maxPrice,
     } = req.body;
-    console.log(marca);
     if (!id) {
         return res.status(400).json({ success: false, message: 'id es requerido' });
     }
@@ -149,35 +148,32 @@ const getProductByCategoryId = async (req, res) => {
     if (page < 1) {
         return res.status(400).json({ success: false, message: 'page debe ser mayor que 0' });
     }
-    if (!marca && marca != "") {
-        return res.status(400).json({ success: false, message: 'marca es requerido' });
-    }
-    if (typeof marca !== 'string') {
-        return res.status(400).json({ success: false, message: 'marca debe ser un string' });
-    }
     let match = {
         categorias: { $all: [id] }
     }
-    if (marca.length > 0) {
-        match.marca = marca;
+    if (marca && marca != "") {
+        if (typeof marca !== 'string') {
+            return res.status(400).json({ success: false, message: 'marca debe ser un string' });
+        }
+        if (marca.length > 0) {
+            match.marca = marca;
+        }
     }
-    if (!maxPrice && maxPrice != 0) {
-        return res.status(400).json({ success: false, message: 'maxPrice es requerido' });
-    }
-    if (typeof maxPrice !== 'number') {
-        return res.status(400).json({ success: false, message: 'maxPrice debe ser un numero' });
-    }
-    if (!minPrice && minPrice != 0) {
-        return res.status(400).json({ success: false, message: 'minPrice es requerido' });
-    }
-    if (typeof minPrice !== 'number') {
-        return res.status(400).json({ success: false, message: 'minPrice debe ser un numero' });
-    }
-    if (minPrice > maxPrice) {
-        return res.status(400).json({ success: false, message: 'minPrice debe ser menor que maxPrice' });
-    }
-    if (minPrice > 0 && maxPrice > 0) {
-        match.precio = { $gte: minPrice, $lte: maxPrice }
+    if (maxPrice)
+        if (typeof maxPrice !== 'number') {
+            return res.status(400).json({ success: false, message: 'maxPrice debe ser un numero' });
+        }
+    if (minPrice)
+        if (typeof minPrice !== 'number') {
+            return res.status(400).json({ success: false, message: 'minPrice debe ser un numero' });
+        }
+    if (minPrice && maxPrice) {
+        if (minPrice > maxPrice) {
+            return res.status(400).json({ success: false, message: 'minPrice debe ser menor que maxPrice' });
+        }
+        if (minPrice > 0 && maxPrice > 0) {
+            match.precio = { $gte: minPrice, $lte: maxPrice }
+        }
     }
     try {
         const client = await mongoClient();
@@ -325,7 +321,7 @@ const getMaxPriceByCategoryId = async (req, res) => {
 
 const getCart = async (req, res) => {
     const { id } = req.params;
-    if (!id || id == undefined) {
+    if (!id || id == "undefined") {
         return res.status(400).json({ success: false, message: 'id es requerido' });
     }
     if (typeof id !== 'string') {
@@ -373,7 +369,7 @@ const saveProductToCart = async (req, res) => {
             cantidad: amount,
         }
         const queryResponse = (await pool.query(sqlQuery, [JSON.stringify(params), 0])).rows[0]['p_id'];
-        res.status(200).json({ carrito_id: queryResponse, producto_id: product.id, cantidad: amount });
+        res.status(200).json({ carrito_id: queryResponse, producto_id: product.id, cantidad: Number(amount) });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error });
