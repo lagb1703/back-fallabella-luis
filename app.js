@@ -14,6 +14,8 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
 // Configura CORS
 app.use(cors());
 
