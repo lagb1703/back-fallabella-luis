@@ -9,7 +9,7 @@ const login = async (req, res) => {
   }
 
   try {
-    const query = 'SELECT usuario_id, contrasena, nombres FROM usuarios."TB_Usuarios" WHERE correo = $1 ';
+    const query = 'SELECT usuario_id, contrasena, correo, nombres, apellidos, celular, identificador FROM usuarios."TB_Usuarios" WHERE correo = $1 ';
     const result = await pool.query(query, [correo]);
 
     if (result.rows.length === 0) {
@@ -28,6 +28,10 @@ const login = async (req, res) => {
       success: true, message: 'Inicio de sesión exitoso', usuario: {
         usuario_id: usuario.usuario_id,
         nombres: usuario.nombres,
+        apellidos: usuario.apellidos,
+        correo: usuario.correo,
+        identificador: usuario.identificador,
+        celular: usuario.celular
       }
     });
   } catch (err) {
